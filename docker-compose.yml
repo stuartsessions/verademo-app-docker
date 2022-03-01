@@ -1,0 +1,33 @@
+version: '3.3'
+services:
+  web-app:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile-Tomcat
+    ports: 
+      - "8080:8080"
+    environment:
+      CLASSPATH: /usr/local/tomcat/webapps/ROOT/WEB-INF/lib
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: blab
+      MYSQL_USER: blab
+      MYSQL_PASSWORD: "z2^E6J4$$;u;d"
+    depends_on:
+      - db
+
+  db:
+    platform: linux/x86_64
+    image: mysql:5.7
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./mysql-dump:/docker-entrypoint-initdb.d
+      - ./blab_schema.sql:/etc/mysql/blab_schema.sql
+      - ./mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: 'blab'
+      MYSQL_USER: 'blab'
+      MYSQL_PASSWORD: 'z2^E6J4$$;u;d'
+    ports:
+      - 3306:3306
+    
