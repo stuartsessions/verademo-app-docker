@@ -2,8 +2,8 @@ version: '3.3'
 services:
   web-app:
     build:
-      context: .
-      dockerfile: ./docker/Dockerfile-Tomcat
+      context: ../verademo-web/target/
+      dockerfile: ../../verademo-docker/docker/Dockerfile-Tomcat
     ports: 
       - "8080:8080"
     environment:
@@ -12,6 +12,15 @@ services:
       MYSQL_DATABASE: blab
       MYSQL_USER: blab
       MYSQL_PASSWORD: "z2^E6J4$$;u;d"
+    depends_on:
+      - db
+
+  api:
+    build:
+      context: ../verademo-api/
+      dockerfile: ../verademo-docker/docker/Dockerfile-NodeJS
+    ports: 
+      - "8000:8000"
     depends_on:
       - db
 
