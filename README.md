@@ -146,7 +146,7 @@ module.exports = db;
   
 ## The first run  
 On the first run you should make sure to rest the database. This will either rest what is already on the database or add all required data to the database. The rest function can be found on the web app behind the rest button.  
-<img src="https://gitlab.com/verademo-app/verademo-docker/-/raw/main/pictures/db_rest.png" />   
+<img src="https://gitlab.com/verademo-app/verademo-docker/-/raw/main/pictures/db_reset.png" />   
 This also prepares the databased to be used by the API.  
 
 ## License  
