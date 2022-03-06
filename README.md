@@ -1,92 +1,153 @@
-# verademo-docker
+<img src="https://help.veracode.com/internal/api/webapp/header/logo" width="200" /><br>  
+  
+# Verademo Apps on Docker  
+  
+## What is this about  
+This a documentation how to run the Verademo Web App (https://gitlab.com/verademo-app/verademo-web), the Verademo API (https://gitlab.com/verademo-app/verademo-api) and the corresponding database for both of them in a dockerized environment.  
+  
+## How to run  
+This is based on the 3 reposirotries on this group https://gitlab.com/verademo-app, you should clone all of them into the same root folder to get this structure  
+<img src="https://gitlab.com/verademo-app/verademo-docker/-/raw/main/pictures/file_structure.png" />  
+This way the example should right away and you don't need to adjust the docker files and folders.  
+  
+It makes use of `docker-compose`that lets you run multiple docker containers at once, all on the same network able to interact which each other. The main docker-compose.yml file is found on the root directory of this repository and will start the 3 metioned docker containers.  
+  
+In easy words you only need to run  
+`docker-compose -f docker-compose.yml up`  
+to start all 3 containers and  
+`docker-compose -f docker-compose.yml down -v`  
+to stop all 3 containers.  
+  
+There is no need to downlaod the base images upfront, the `docker-compose` process will make sure they will be downloaded.  
+  
+If you want to fully wipe everything and restart from sratch, make sure to also delete the corresponding docker images with `docker image rm IMAGE-ID`.  
+  
+Content of the docker-compose.yml:  
+```yaml
+version: '3.3'
+services:
+  web-app:
+    build:
+      context: ../verademo-web/target/
+      dockerfile: ../../verademo-docker/docker/Dockerfile-Tomcat
+    ports: 
+      - "8080:8080"
+    environment:
+      CLASSPATH: /usr/local/tomcat/webapps/ROOT/WEB-INF/lib
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: blab
+      MYSQL_USER: blab
+      MYSQL_PASSWORD: "z2^E6J4$$;u;d"
+    depends_on:
+      - db
 
+  api:
+    build:
+      context: ../verademo-api/
+      dockerfile: ../verademo-docker/docker/Dockerfile-NodeJS
+    ports: 
+      - "8000:8000"
+    depends_on:
+      - db
 
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
+  db:
+    platform: linux/x86_64
+    image: mysql:5.7
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./mysql-dump:/docker-entrypoint-initdb.d
+      - ./blab_schema.sql:/etc/mysql/blab_schema.sql
+      - ./mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: 'blab'
+      MYSQL_USER: 'blab'
+      MYSQL_PASSWORD: 'z2^E6J4$$;u;d'
+    ports:
+      - 3306:3306
+```  
+  
+Let's look at all 3 sections individually.  
+  
+### The Wep App section  
+```yml
+  web-app:
+    build:
+      context: ../verademo-web/target/
+      dockerfile: ../../verademo-docker/docker/Dockerfile-Tomcat
+    ports: 
+      - "8080:8080"
+    environment:
+      CLASSPATH: /usr/local/tomcat/webapps/ROOT/WEB-INF/lib
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: blab
+      MYSQL_USER: blab
+      MYSQL_PASSWORD: "z2^E6J4$$;u;d"
+    depends_on:
+      - db
 ```
-cd existing_repo
-git remote add origin https://gitlab.com/verademo-app/verademo-docker.git
-git branch -M main
-git push -uf origin main
+This will use the docker file `/docker/Dockerfile-Tomcat` and start a brand new tomcat container in version 9.0.58. It copies over the `verademo.war` file from the veradmo web app (https://gitlab.com/verademo-app/verademo-web). The container will be started with an open port on 8080 and sets a few environment variables.  
+Once started you should have a running web applciation at http://YOUR-LOCAL-IP:8080/verademo.  
+  
+### The API Section  
+```yml
+  api:
+    build:
+      context: ../verademo-api/
+      dockerfile: ../verademo-docker/docker/Dockerfile-NodeJS
+    ports: 
+      - "8000:8000"
+    depends_on:
+      - db
 ```
+This will use the docker file `/docker/Dockerfile-NodeJS`and start a brand new node.js container in version 16. It copies over the verademo nod.js API from the veradmo-api repository (https://gitlab.com/verademo-app/verademo-api). The container will be started with an open port on 8000.  
+Once started you should have a running API applciation at http://YOUR-LOCAL-IP:8000/.  
+Please refere to the full documentation of the API https://gitlab.com/verademo-app/verademo-api.  
+  
+### The Database Section  
+```yml
+  db:
+    platform: linux/x86_64
+    image: mysql:5.7
+    volumes:
+      - ./mysql:/var/lib/mysql
+      - ./mysql-dump:/docker-entrypoint-initdb.d
+      - ./blab_schema.sql:/etc/mysql/blab_schema.sql
+      - ./mysqld.cnf:/etc/mysql/mysql.conf.d/mysqld.cnf
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: 'blab'
+      MYSQL_USER: 'blab'
+      MYSQL_PASSWORD: 'z2^E6J4$$;u;d'
+    ports:
+      - 3306:3306
+```
+This will use the base image `mysql:5.7`and start a brand new mysql container. It copies over a few things, like the database schema for the database and a mysql.cnf file to run on localhost. The container will be started with an open port on 3306.  
+Once started you should have a running mysql database at YOUR-LOCAL-IP:3306.  
+The mysql root user has the password `root`, the database for the web app and API is using a user called `blab`with password `z2^E6J4$;u;d`, note the doubel `$` one is used to XXXX the second. The real password is only with one `$`.  
+The mysql start will create 2 new folders on your harddisk to store the mysql data. They are `/mysql/` and `/mysql-dump/`.
+  
+## Manual changes to be done  
+Only one manual changes is requires to run this correctly on your local machine.  
+  
+The IP the API is running on has to be changed at `/verademo-api/config/db.config.js`, it still refelcts the IP my local machine was running on. The API should not run on `localhost` as you won't be able to scan with dynamic API scanning (https://docs.veracode.com/r/Using_Veracode_Dynamic_Analysis) and the ISM (https://docs.veracode.com/r/c_using_ism) in that case.  
+```  
+const { createPool } = require("mysql");
+const db = createPool({
+  port: 3306,
+  host: "192.168.178.80",
+  user: "blab",
+  password: "z2^E6J4$;u;d",
+  database: "blab",
+  connectionLimit: 10,
+});
+module.exports = db;
+```  
+  
+## The first run  
+On the first run you should make sure to rest the database. This will either rest what is already on the database or add all required data to the database. The rest function can be found on the web app behind the rest button.  
+<img src="https://gitlab.com/verademo-app/verademo-docker/-/raw/main/pictures/db_rest.png" />   
+This also prepares the databased to be used by the API.  
 
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/verademo-app/verademo-docker/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!).  Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
-
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
-
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+## License  
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](license)  
