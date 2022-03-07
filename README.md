@@ -8,7 +8,7 @@ This a documentation how to run the Verademo Web App (https://gitlab.com/veradem
 ## How to run  
 This is based on the 3 reposirotries on this group https://gitlab.com/verademo-app, you should clone all of them into the same root folder to get this structure  
 <img src="https://gitlab.com/verademo-app/verademo-docker/-/raw/main/pictures/file_structure.png" />  
-This way the example should right away and you don't need to adjust the docker files and folders.  
+This way the example should start right away and you don't need to adjust the docker files and folders.  
   
 It makes use of `docker-compose`that lets you run multiple docker containers at once, all on the same network able to interact which each other. The main docker-compose.yml file is found on the root directory of this repository and will start the 3 metioned docker containers.  
   
@@ -18,9 +18,9 @@ to start all 3 containers and
 `docker-compose -f docker-compose.yml down -v`  
 to stop all 3 containers.  
   
-There is no need to downlaod the base images upfront, the `docker-compose` process will make sure they will be downloaded.  
+There is no need to download the base images upfront, the `docker-compose` process will make sure they will be downloaded.  
   
-If you want to fully wipe everything and restart from sratch, make sure to also delete the corresponding docker images with `docker image rm IMAGE-ID`.  
+If you want to fully wipe everything and restart from scratch, make sure to also delete the corresponding docker images with `docker image rm IMAGE-ID`.  
   
 Content of the docker-compose.yml:  
 ```yaml
@@ -101,7 +101,7 @@ Once started you should have a running web applciation at http://YOUR-LOCAL-IP:8
       - db
 ```
 This will use the docker file `/docker/Dockerfile-NodeJS`and start a brand new node.js container in version 16. It copies over the verademo nod.js API from the veradmo-api repository (https://gitlab.com/verademo-app/verademo-api). The container will be started with an open port on 8000.  
-Once started you should have a running API applciation at http://YOUR-LOCAL-IP:8000/.  
+Once started you should have a running API application at http://YOUR-LOCAL-IP:8000/.  
 Please refere to the full documentation of the API https://gitlab.com/verademo-app/verademo-api.  
   
 ### The Database Section  
@@ -124,13 +124,13 @@ Please refere to the full documentation of the API https://gitlab.com/verademo-a
 ```
 This will use the base image `mysql:5.7`and start a brand new mysql container. It copies over a few things, like the database schema for the database and a mysql.cnf file to run on localhost. The container will be started with an open port on 3306.  
 Once started you should have a running mysql database at YOUR-LOCAL-IP:3306.  
-The mysql root user has the password `root`, the database for the web app and API is using a user called `blab`with password `z2^E6J4$;u;d`, note the doubel `$` one is used to XXXX the second. The real password is only with one `$`.  
+The mysql root user has the password `root`, the database for the web app and API is using a user called `blab`with password `z2^E6J4$;u;d`, note the double `$` one is used to mask the second. The real password is only with one `$`.  
 The mysql start will create 2 new folders on your harddisk to store the mysql data. They are `/mysql/` and `/mysql-dump/`.
   
 ## Manual changes to be done  
-Only one manual changes is requires to run this correctly on your local machine.  
+Only one manual change is required to run this correctly on your local machine.  
   
-The IP the API is running on has to be changed at `/verademo-api/config/db.config.js`, it still refelcts the IP my local machine was running on. The API should not run on `localhost` as you won't be able to scan with dynamic API scanning (https://docs.veracode.com/r/Using_Veracode_Dynamic_Analysis) and the ISM (https://docs.veracode.com/r/c_using_ism) in that case.  
+The IP the API is running on has to be changed at `/verademo-api/config/db.config.js`, it still reflects the IP my local machine was running on. The API should not run on `localhost` as you won't be able to scan with dynamic API scanning (https://docs.veracode.com/r/Using_Veracode_Dynamic_Analysis) and the ISM (https://docs.veracode.com/r/c_using_ism) in that case.  
 ```  
 const { createPool } = require("mysql");
 const db = createPool({
@@ -145,7 +145,7 @@ module.exports = db;
 ```  
   
 ## The first run  
-On the first run you should make sure to rest the database. This will either rest what is already on the database or add all required data to the database. The rest function can be found on the web app behind the rest button.  
+On the first run you should make sure to rest the database. This will either reset what is already on the database or add all required data to the database. The reset function can be found on the web app behind the reset button.  
 <img src="https://gitlab.com/verademo-app/verademo-docker/-/raw/main/pictures/db_reset.png" />   
 This also prepares the databased to be used by the API.  
 
