@@ -3,11 +3,11 @@
 # Verademo Apps on Docker  
   
 ## What is this about  
-This a documentation how to run the Verademo Web App (https://gitlab.com/verademo-app/verademo-web), the Verademo API (https://gitlab.com/verademo-app/verademo-api) and the corresponding database for both of them in a dockerized environment.  
+This a documentation how to run the Verademo Web App ([https://github.com/veracode/verademo-java-web](https://github.com/veracode/verademo-java-web)), the Verademo API ([https://github.com/veracode/verademo-javascript-api](https://github.com/veracode/verademo-javascript-api)) and the corresponding database for both of them in a dockerized environment.  
   
 ## How to run  
-This is based on the 3 reposirotries on this group https://gitlab.com/verademo-app, you should clone all of them into the same root folder to get this structure  
-<img src="https://gitlab.com/verademo-app/verademo-docker/-/raw/main/pictures/file_structure.png" />  
+This is based on the 2 reposirotries abvoe and this one, you should clone all of them into the same root folder to get this structure  
+<img src="https://github.com/veracode/verademo-app-docker/blob/main/pictures/file_structure.png" />  
 This way the example should start right away and you don't need to adjust the docker files and folders.  
   
 It makes use of `docker-compose`that lets you run multiple docker containers at once, all on the same network able to interact which each other. The main docker-compose.yml file is found on the root directory of this repository and will start the 3 metioned docker containers.  
@@ -86,7 +86,7 @@ Let's look at all 3 sections individually.
     depends_on:
       - db
 ```
-This will use the docker file `/docker/Dockerfile-Tomcat` and start a brand new tomcat container in version 9.0.58. It copies over the `verademo.war` file from the veradmo web app (https://gitlab.com/verademo-app/verademo-web). The container will be started with an open port on 8080 and sets a few environment variables.  
+This will use the docker file `/docker/Dockerfile-Tomcat` and start a brand new tomcat container in version 9.0.58. It copies over the `verademo.war` file from the veradmo web app ([https://github.com/veracode/verademo-java-web](https://github.com/veracode/verademo-java-web)). The container will be started with an open port on 8080 and sets a few environment variables.  
 Once started you should have a running web applciation at http://YOUR-LOCAL-IP:8080/verademo.  
   
 ### The API Section  
@@ -100,9 +100,9 @@ Once started you should have a running web applciation at http://YOUR-LOCAL-IP:8
     depends_on:
       - db
 ```
-This will use the docker file `/docker/Dockerfile-NodeJS`and start a brand new node.js container in version 16. It copies over the verademo nod.js API from the veradmo-api repository (https://gitlab.com/verademo-app/verademo-api). The container will be started with an open port on 8000.  
+This will use the docker file `/docker/Dockerfile-NodeJS`and start a brand new node.js container in version 16. It copies over the verademo nod.js API from the veradmo-api repository ([https://github.com/veracode/verademo-javascript-api](https://github.com/veracode/verademo-javascript-api)). The container will be started with an open port on 8000.  
 Once started you should have a running API application at http://YOUR-LOCAL-IP:8000/.  
-Please refere to the full documentation of the API https://gitlab.com/verademo-app/verademo-api.  
+Please refere to the full documentation of the API ([https://github.com/veracode/verademo-javascript-api](https://github.com/veracode/verademo-javascript-api)).  
   
 ### The Database Section  
 ```yml
@@ -146,7 +146,7 @@ module.exports = db;
   
 ## The first run  
 On the first run you should make sure to rest the database. This will either reset what is already on the database or add all required data to the database. The reset function can be found on the web app behind the reset button.  
-<img src="https://gitlab.com/verademo-app/verademo-docker/-/raw/main/pictures/db_reset.png" />   
+<img src="https://github.com/veracode/verademo-app-docker/blob/main/pictures/file_structure.png" />   
 This also prepares the databased to be used by the API.  
 
 ## License  
