@@ -2,8 +2,8 @@ version: '3.3'
 services:
   web-app:
     build:
-      context: ../verademo-web/target/
-      dockerfile: ../../verademo-docker/docker/Dockerfile-Tomcat
+      context: ../verademo-java-app/target/
+      dockerfile: ../../verademo-app-docker/docker/Dockerfile-Tomcat
     ports: 
       - "8080:8080"
     environment:
@@ -17,8 +17,8 @@ services:
 
   api:
     build:
-      context: ../verademo-api/
-      dockerfile: ../verademo-docker/docker/Dockerfile-NodeJS
+      context: ../verademo-javascript-api/
+      dockerfile: ../verademo-app-docker/docker/Dockerfile-NodeJS
     ports: 
       - "8000:8000"
     depends_on:
